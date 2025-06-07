@@ -2,19 +2,25 @@ import Header from "../header/Header";
 import Box from "@mui/material/Box";
 import {CardMedia, IconButton} from "@mui/material";
 import Typography from "@mui/material/Typography";
-import StarIcon from "@mui/icons-material/Star";
-import StarBorderIcon from "@mui/icons-material/StarBorder";
 import {useState} from "react";
 import BackspaceIcon from '@mui/icons-material/Backspace';
 import {useLoadDetails} from "../hooks/use-load-details";
 import {useLoadCredits} from "../hooks/use-load-credits";
 import {useNavigate} from "react-router-dom";
+import LoadingSpinner from "../loading-spinner/Loading-spinner";
+import ErrorMessage from "../error-message/Error-message";
+import DetailsInfo from "../details-info/Details-info";
+import FavoriteButton from "../favorite-button/Favorite-button";
+import CreditsInfo from "../credits-info/Credits-info"
 
 function CardDetails() {
     const [isFavorite, setIsFavorite] = useState(false);
-    const {details, loading, error} = useLoadDetails();
-    const {credits} = useLoadCredits();
+    const { details, loading: detailsLoading, error: detailsError } = useLoadDetails();
+    const { credits, loading: creditsLoading, error: creditsError } = useLoadCredits();
     const navigate = useNavigate();
+
+    const loading = detailsLoading || creditsLoading;
+    const error = detailsError || creditsError;
 
     return (
         <Box sx={{ display: 'flex', flexDirection: 'column' }}>
@@ -22,9 +28,9 @@ function CardDetails() {
 
             <Box sx={{ display: 'flex', m: 3 }}>
                 {loading ? (
-                    <Typography variant="h5">Загрузка...</Typography>
+                    <LoadingSpinner />
                 ) : error ? (
-                    <Typography color="error">{error}</Typography>
+                    <ErrorMessage message={error} />
                 ) : details ? (
                     <>
                         <CardMedia
@@ -58,51 +64,23 @@ function CardDetails() {
                                     <Typography variant="h3">
                                         {details.title} ({details.release_date?.split('-')[0]})
                                     </Typography>
-                                    <IconButton
-                                        aria-label="favorite"
-                                        onClick={() => setIsFavorite(!isFavorite)}
-                                        sx={{ padding: 0, width: 50, height: 50 }}
-                                    >
-                                        {isFavorite ? (
-                                            <StarIcon sx={{ color: 'gold', fontSize: 50 }} />
-                                        ) : (
-                                            <StarBorderIcon sx={{ color: 'black', fontSize: 50 }} />
-                                        )}
-                                    </IconButton>
+                                    <FavoriteButton
+                                        isFavorite={isFavorite}
+                                        onToggle={() => setIsFavorite(!isFavorite)}
+                                    />
                                 </Box>
                                 <IconButton
                                     onClick={() => navigate('/')}
                                     aria-label="delete"
-                                    sx={{ padding: 0, width: 50, height: 50 }}>
+                                    sx={{ padding: 0, width: 50, height: 50 }}
+                                >
                                     <BackspaceIcon />
                                 </IconButton>
                             </Box>
 
-                            <Box sx={{ display: 'flex', alignItems: 'start', gap: 2 }}>
-                                <Typography variant='h3'>Авторы:</Typography>
-                                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'start', gap: 0.1 }}>
-                                    {credits?.crew
-                                        ?.filter(person => person.job === 'Director' || person.job === 'Writer')
-                                        .map((person, index) => (
-                                            <Typography key={index} variant="h6">
-                                                {person.job}: {person.name}
-                                            </Typography>
-                                        ))}
-                                </Box>
-                            </Box>
+                            {credits?.crew && <CreditsInfo crew={credits.crew} />}
 
-                            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'start', gap: 1 }}>
-                                <Typography variant="h3">Детали</Typography>
-                                <Box sx={{ gap: 5 }}>
-                                    <Typography variant='body1'>Страна: {details.origin_country?.[0] || 'N/A'}</Typography>
-                                    <Typography variant='body1'>Год: {details.release_date?.split('-')[0]}</Typography>
-                                    <Typography variant='body1'>Жанр: {details.genres?.map(g => g.name).join(', ')}</Typography>
-                                    <Typography variant='body1'>Рейтинг: {details.vote_average}</Typography>
-                                    <Typography variant='body1'>Бюджет: ${details.budget?.toLocaleString()}</Typography>
-                                    <Typography variant='body1'>Зрители: {details.popularity?.toFixed(0)} тыс.</Typography>
-                                    <Typography variant='body1'>Время: {details.runtime} мин.</Typography>
-                                </Box>
-                            </Box>
+                            <DetailsInfo details={details} />
                         </Box>
                     </>
                 ) : null}
@@ -110,5 +88,6 @@ function CardDetails() {
         </Box>
     );
 }
+
 
 export default CardDetails;

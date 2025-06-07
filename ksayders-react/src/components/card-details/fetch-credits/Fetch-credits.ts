@@ -1,4 +1,6 @@
-export const fetchCredits = async (token: string, movieId: string) => {
+import type {Credits} from "../types/tmdb";
+
+export const fetchCredits = async (token: string, movieId: string): Promise<Credits> => {
     const options = {
         method: 'GET',
         headers: {
@@ -14,9 +16,7 @@ export const fetchCredits = async (token: string, movieId: string) => {
             throw new Error('Ошибка при загрузке информации о фильме')
         }
 
-        const data = await res.json();
-        console.log(data)
-        return data
+        return await res.json()
     } catch (e) {
         throw new Error(`Не удалось получить информацию о фильме: ${e}`);
     }

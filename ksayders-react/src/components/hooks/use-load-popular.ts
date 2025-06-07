@@ -1,6 +1,5 @@
-import {useEffect, useState} from "react";
-import {fetchPopular} from "../card/fetch-films/Fetch-popular";
-import {useUserContext} from "./use-user";
+import { useFetchData } from "./use-fetch-data";
+import { fetchPopular } from "../card/fetch-films/Fetch-popular";
 
 interface Movie {
     id: number;
@@ -10,26 +9,11 @@ interface Movie {
 }
 
 export const useLoadPopular = (page: number) => {
-    const {token} = useUserContext();
-    const [moviesPopular, setMoviesPopular] = useState<Movie[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+    const { data: moviesPopular, loading, error } = useFetchData<{ results: Movie[] }, [number]>(
+        fetchPopular,
+        [page],
+        [page]
+    );
 
-
-    useEffect(() => {
-        const loadPopular = async () => {
-            setLoading(true);
-            try {
-                const data = await fetchPopular(token, page);
-                setMoviesPopular(data.results);
-            } catch (e) {
-                const message = e instanceof Error ? e.message : 'Неизвестная ошибка';
-                setError(message);
-            } finally {
-                setLoading(false);
-            }
-        }
-        loadPopular();
-    }, [page, token]);
-    return {moviesPopular, loading, error};
+    return { moviesPopular: moviesPopular?.results || [], loading, error };
 };

@@ -22,7 +22,7 @@ function GenresSelect() {
             multiple
             limitTags={2}
             disableCloseOnSelect
-            options={genres}
+            options={genres ?? []}
             loading={loading}
             getOptionLabel={(option) => option.name}
             value={selectedGenres}

@@ -1,6 +1,5 @@
-import {useEffect, useState} from "react";
-import {fetchRaiting} from "../card/fetch-films/Fetch-raiting";
-import {useUserContext} from "./use-user";
+import { useFetchData } from "./use-fetch-data";
+import { fetchRaiting } from "../card/fetch-films/Fetch-raiting";
 
 interface Movie {
     id: number;
@@ -10,26 +9,11 @@ interface Movie {
 }
 
 export const useLoadRaiting = (page: number) => {
-    const {token} = useUserContext();
-    const [moviesRaiting, setMoviesRaiting] = useState<Movie[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+    const { data: moviesRaiting, loading, error } = useFetchData<{ results: Movie[] }, [number]>(
+        fetchRaiting,
+        [page],
+        [page]
+    );
 
-
-    useEffect(() => {
-        const loadRaiting = async () => {
-            setLoading(true);
-            try {
-                const data = await fetchRaiting(token, page);
-                setMoviesRaiting(data.results);
-            } catch (e) {
-                const message = e instanceof Error ? e.message : 'Неизвестная ошибка';
-                setError(message);
-            } finally {
-                setLoading(false);
-            }
-        }
-        loadRaiting();
-    }, [page, token]);
-    return {moviesRaiting, loading, error};
+    return { moviesRaiting: moviesRaiting?.results || [], loading, error };
 };

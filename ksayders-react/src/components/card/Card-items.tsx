@@ -1,19 +1,12 @@
-import {Button, Card, CardMedia, IconButton, Paper} from '@mui/material';
+import {Button, Card, CardMedia, Paper} from '@mui/material';
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
-import StarBorderIcon from '@mui/icons-material/StarBorder';
-import StarIcon from '@mui/icons-material/Star';
-import {useState} from "react";
+import FavoriteButton from "../favorite-button/Favorite-button";
+import type {PropsCardItems} from "./types";
+import {useFavorites} from "../hooks/use-favorites";
 
-type Props = {
-    title: string,
-    raiting: number,
-    image: string,
-    onImageClick: () => void
-};
-
-function CardItems({image, title, raiting, onImageClick}: Props) {
-    const [isFavorite, setIsFavorite] = useState(false);
+function CardItems({image, title, raiting, onImageClick, movieId}: PropsCardItems) {
+    const { isFavorite, onFavoriteToggle} = useFavorites(movieId);
 
     return (
         <Card sx={{
@@ -53,21 +46,10 @@ function CardItems({image, title, raiting, onImageClick}: Props) {
                             Рейтинг: {raiting.toFixed()}
                         </Typography>
                     </Box>
-                    <IconButton
-                        aria-label="favorite"
-                        onClick={() => setIsFavorite(!isFavorite)}
-                        sx={{
-                            padding: 0,
-                            width: 20,
-                            height: 20
-                        }}
-                    >
-                        {isFavorite ? (
-                            <StarIcon sx={{color: 'gold', fontSize: 20}}/>
-                        ) : (
-                            <StarBorderIcon sx={{color: 'black', fontSize: 20}}/>
-                        )}
-                    </IconButton>
+                    <FavoriteButton
+                        isFavorite={isFavorite}
+                        onToggle={onFavoriteToggle}
+                    />
                 </Box>
             </Paper>
         </Card>

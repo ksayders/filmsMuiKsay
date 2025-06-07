@@ -4,16 +4,19 @@ import GenresYears from "./genres-years/Genres-years";
 import GenresOptions from "./genres-options/Genres-options";
 import GenresHead from "./genres-head/Genres-head";
 import {Pagination} from "@mui/material";
+import GenresSearch from "./genres-search/Genres-search";
 
 type Props = {
     sortBy: string;
     setSortBy: (value: string) => void;
     page: number;
     setPage: (value: number) => void;
+    inputValue: string;
+    setInputValue: (value: string) => void;
 };
 
 
-function Filters({sortBy, setSortBy, page, setPage}: Props) {
+function Filters({sortBy, setSortBy, page, setPage, inputValue, setInputValue}: Props) {
     return (
         <Box sx={{
             display: 'flex',
@@ -35,6 +38,7 @@ function Filters({sortBy, setSortBy, page, setPage}: Props) {
                 gap: 5
             }}>
                 <GenresHead/>
+                <GenresSearch inputValue={inputValue} setInputValue={setInputValue}/>
                 <GenresOptions sortBy={sortBy} setSortBy={setSortBy}/>
                 <GenresYears/>
                 <GenresSelect/>
