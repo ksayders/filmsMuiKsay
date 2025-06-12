@@ -4,11 +4,14 @@ import {fetchFavoritesList} from "../card/fetch-favorites-list/Fetch-favorites-l
 import {fetchFavoritesAddDelete} from "../card/fetch-favorite-add-delete/Fetch-favorites-add-delete";
 import type {Movie} from "./use-favorites-list";
 
-export function useFavorites(movieId: number) {
+export function useFavorites(movieId: number, initialFavorite = false) {
     const {token, accountId} = useUserContext();
-    const [isFavorite, setIsFavorite] = useState(false);
+    const [isFavorite, setIsFavorite] = useState(initialFavorite);
 
     useEffect(() => {
+        if (initialFavorite) {
+            return;
+        }
         const checkFavoriteState = async () => {
             if (!token || !accountId) {
                 return;
@@ -22,17 +25,20 @@ export function useFavorites(movieId: number) {
             }
         }
         checkFavoriteState();
-    }, [token, accountId, movieId]);
+    }, [token, accountId, movieId, initialFavorite]);
 
     const onFavoriteToggle = async () => {
         if (!token || !accountId) {
             return;
         }
+
+        const optimisticValue = !isFavorite;
+        setIsFavorite(optimisticValue);
+
         try {
-            const newFavoriteState = !isFavorite;
-            await fetchFavoritesAddDelete(token, accountId, movieId, newFavoriteState)
-            setIsFavorite(newFavoriteState);
+            await fetchFavoritesAddDelete(token, accountId, movieId, optimisticValue)
         } catch(e) {
+            setIsFavorite(!optimisticValue)
             throw new Error(`Ошибка при изменении избранного: ${e}`)
         }
     }
